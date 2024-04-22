@@ -1,15 +1,15 @@
 package crontab
 
 import (
+	"context"
 	"goconf/common/database"
 	"goconf/core/config/source/file"
 	"goconf/core/logger"
-	"goconf/core/sdk"
 	"goconf/core/sdk/config"
 	"os"
 	"os/signal"
 	"syscall"
-
+	log "goconf/core/logger"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/cobra"
 )
@@ -52,32 +52,35 @@ func setup() {
 }
 
 func run() error {
-	var log *logger.Helper
-	log = logger.NewHelper(sdk.Runtime.GetLogger()).WithFields(map[string]interface{}{
-	})
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel() // 确保在函数退出时取消上下文
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	c := cron.New(cron.WithSeconds())
-	
-	_, err := c.AddFunc("@every 1s", func() { log.Error("name:age") })
-	if err != nil {
 
-		return err
-	}
+	go func(ctx context.Context) {
+		_, err := c.AddFunc("@every 1s", func() { log.Error("name:age") })
+		if err != nil {
 
-	_, err1 := c.AddFunc("@every 1s", func() { logger.Info("value:test") })
-	if err1 != nil {
+			return
+		}
 
-		return err1
-	}
+		_, err1 := c.AddFunc("@every 1s", func() { logger.Info("value:test") })
+		if err1 != nil {
 
+			return
+		}
+		c.Start()
 
-	c.Start()
+		<-ctx.Done()
 
-	exitSignal := make(chan os.Signal, 1)
-	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
-	<-exitSignal
+		c.Stop()
 
-	c.Stop()
+	}(ctx)
+
+	<-quit
 
 	return nil
 }

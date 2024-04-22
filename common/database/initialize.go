@@ -27,6 +27,7 @@ func setupSimpleDatabase(host string, c *config.Database) {
 	if global.Driver == "" {
 		global.Driver = c.Driver
 	}
+	
 	log.Infof("%s => %s", host, pkg.Green(c.Source))
 	registers := make([]toolsDB.ResolverConfigure, len(c.Registers))
 	for i := range c.Registers {
@@ -36,7 +37,9 @@ func setupSimpleDatabase(host string, c *config.Database) {
 			c.Registers[i].Policy,
 			c.Registers[i].Tables)
 	}
+	
 	resolverConfig := toolsDB.NewConfigure(c.Source, c.MaxIdleConns, c.MaxOpenConns, c.ConnMaxIdleTime, c.ConnMaxLifeTime, registers)
+	fmt.Println("aaa")
 	db, err := resolverConfig.Init(&gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
@@ -52,6 +55,7 @@ func setupSimpleDatabase(host string, c *config.Database) {
 	}, opens[c.Driver])
 
 	if err != nil {
+		fmt.Println(pkg.Red(c.Driver+" connect error :"), err)
 		log.Fatal(pkg.Red(c.Driver+" connect error :"), err)
 	} else {
 		fmt.Println(pkg.Green(c.Driver + " connect success !"))
