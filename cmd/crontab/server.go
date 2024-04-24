@@ -63,24 +63,16 @@ func run() error {
 	go func(ctx context.Context) {
 		_, err := c.AddFunc("@every 1s", func() { log.Error("name:age") })
 		if err != nil {
-
 			return
 		}
-
 		_, err1 := c.AddFunc("@every 1s", func() { logger.Info("value:test") })
 		if err1 != nil {
-
 			return
 		}
 		c.Start()
-
 		<-ctx.Done()
-
 		c.Stop()
-
 	}(ctx)
-
 	<-quit
-
 	return nil
 }

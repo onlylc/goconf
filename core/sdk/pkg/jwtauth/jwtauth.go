@@ -3,8 +3,8 @@ package jwtauth
 import (
 	"crypto/rsa"
 	"errors"
-	"os"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -533,4 +533,124 @@ func (mw *GinJWTMiddleware) publicKey() error {
 	}
 	mw.pubKey = key
 	return nil
+}
+
+func (mw *GinJWTMiddleware) signedString(token *jwt.Token) (string, error) {
+	var tokenString string
+	var err error
+	if mw.usingPublicKeyAlgo() {
+		tokenString, err = token.SignedString(mw.privKey)
+	} else {
+
+		tokenString, err = token.SignedString(mw.Key)
+	}
+	return tokenString, err
+}
+
+func (mw *GinJWTMiddleware) LoginHandler(c *gin.Context) {
+	if mw.Authenticator == nil {
+		mw.unauthorized(c, http.StatusInternalServerError, mw.HTTPStatusMessageFunc(ErrMissingAuthenticatorFunc, c))
+		return
+	}
+	data, err := mw.Authenticator(c)
+	if err != nil {
+		mw.unauthorized(c, 400, mw.HTTPStatusMessageFunc(err, c))
+		return
+	}
+
+	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
+
+	claims := token.Claims.(jwt.MapClaims)
+	if mw.PayloadFunc != nil {
+		for key, value := range mw.PayloadFunc(data) {
+			claims[key] = value
+		}
+	}
+	expire := mw.TimeFunc().Add(mw.Timeout)
+	claims["exp"] = expire.Unix()
+	claims["orig_iat"] = mw.TimeFunc().Unix()
+	tokenString, err := mw.signedString(token)
+	if err != nil {
+		mw.unauthorized(c, http.StatusOK, mw.HTTPStatusMessageFunc(ErrFailedTokenCreation, c))
+	}
+
+	if mw.SendCookie {
+		maxage := int(expire.Unix() - time.Now().Unix())
+		c.SetCookie(
+			mw.CookieName,
+			tokenString,
+			maxage,
+			"/",
+			mw.CookieDomain,
+			mw.SecureCookie,
+			mw.CookieHTTPOnly,
+		)
+	}
+	mw.AntdLoginResponse(c, http.StatusOK, tokenString, expire)
+}
+
+func (mw *GinJWTMiddleware) RefreshHandler(c *gin.Context) {
+	tokenString, expire, err := mw.RefreshToken(c)
+	if err != nil {
+		mw.unauthorized(c, http.StatusUnauthorized, mw.HTTPStatusMessageFunc(err, c))
+		return
+	}
+	mw.RefreshResponse(c, http.StatusOK, tokenString, expire)
+}
+
+func (mw *GinJWTMiddleware) RefreshToken(c *gin.Context) (string, time.Time, error) {
+	claims, err := mw.CheckIfTokenExpire(c)
+	if err != nil {
+		return "", time.Now(), err
+	}
+	newToken := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
+	newClaims := newToken.Claims.(jwt.MapClaims)
+
+	for key := range claims {
+		newClaims[key] = claims[key]
+	}
+
+	expire := mw.TimeFunc().Add(mw.Timeout)
+	newClaims["exp"] = expire.Unix()
+	newClaims["orig_iat"] = mw.TimeFunc().Unix()
+	tokenString, err := mw.signedString(newToken)
+
+	if err != nil {
+		return "", time.Now(), err
+	}
+
+	if mw.SendCookie {
+		maxage := int(expire.Unix() - time.Now().Unix())
+		c.SetCookie(
+			mw.CookieName,
+			tokenString,
+			maxage,
+			"/",
+			mw.CookieDomain,
+			mw.SecureCookie,
+			mw.CookieHTTPOnly,
+		)
+	}
+	return tokenString, expire, nil
+}
+
+func (mw *GinJWTMiddleware) CheckIfTokenExpire(c *gin.Context) (jwt.MapClaims, error) {
+	token, err := mw.ParseToken(c)
+
+	if err != nil {
+		validationErr, ok := err.(*jwt.ValidationError)
+		if !ok || validationErr.Errors != jwt.ValidationErrorExpired {
+			return nil, err
+		}
+	}
+	claims := MapClaims(token.Claims.(jwt.MapClaims))
+	origIat, err := claims.OrigIat()
+	if err != nil {
+		return nil, err
+	}
+	if origIat < mw.TimeFunc().Add(-mw.MaxRefresh).Unix() {
+		return nil, ErrExpiredToken
+	}
+	return token.Claims.(jwt.MapClaims), nil
+
 }

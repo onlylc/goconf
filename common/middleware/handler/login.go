@@ -8,7 +8,7 @@ import (
 type Login struct {
 	Username string `json:"username" from:"username" binding:"required"`
 	Password string `json:"password" from:"password" binding:"required"`
-	Code     string `json:"code" from:"code" binding:"required"`
+	// Code     string `json:"code" from:"code" binding:"required"`
 	UUID     string `json:"uuid" from:"uuid" binding:"required"`
 }
 

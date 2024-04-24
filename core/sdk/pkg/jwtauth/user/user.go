@@ -35,3 +35,16 @@ func GetUserIdStr(c *gin.Context) string {
 
 	return data.String("identity")
 }
+
+func GetRoleName(c *gin.Context) string {
+	return ExtractClaims(c).String("rolekey")
+}
+
+func GetRoleId(c *gin.Context) int {
+	roleId, err := ExtractClaims(c).Int("roleid")
+	if err != nil {
+		fmt.Println(pkg.GetCurrentTimeStr() + " [WARING] " + c.Request.Method + " " + c.Request.URL.Path + " " + " GetRoleId 缺少 roleid error: " + err.Error())
+		return 0 
+	}
+	return roleId
+}

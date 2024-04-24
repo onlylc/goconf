@@ -28,6 +28,7 @@ const (
  *  order 排序		e.g. order[key]=desc     order[key]=asc
  */
 func ResolveSearchQuery(driver string, q interface{}, condition Condition) {
+	
 	qType := reflect.TypeOf(q)
 	qValue := reflect.ValueOf(q)
 	var tag string
@@ -42,6 +43,7 @@ func ResolveSearchQuery(driver string, q interface{}, condition Condition) {
 	for i := 0; i < qType.NumField(); i++ {
 		tag, ok = "", false
 		tag, ok = qType.Field(i).Tag.Lookup(FromQueryTag)
+		
 		if !ok {
 			//递归调用
 			ResolveSearchQuery(driver, qValue.Field(i).Interface(), condition)
@@ -51,14 +53,21 @@ func ResolveSearchQuery(driver string, q interface{}, condition Condition) {
 		case "-":
 			continue
 		}
+		// fmt.Println("ok",ok,"tag", tag, "condition",condition)
+		// fmt.Printf("Field %d: Name=%s, Type=%s, Value=%v\n", i, qType.Field(i).Name, qType.Field(i).Type, qValue.Field(i))
+		
 		t = makeTag(tag)
+		
 		if qValue.Field(i).IsZero() {
 			continue
 		}
+		// fmt.Println("sqldriver")
 		//解析 Postgres `语法不支持，单独适配
 		if driver == Postgres {
+			// fmt.Println("sql",driver, t, condition, qValue,i)
 			pgSql(driver, t, condition, qValue, i)
 		} else {
+			// fmt.Println("sql",driver, t, condition, qValue,i)
 			otherSql(driver, t, condition, qValue, i)
 		}
 	}
@@ -109,6 +118,8 @@ func pgSql(driver string, t *resolveSearchTag, condition Condition, qValue refle
 }
 
 func otherSql(driver string, t *resolveSearchTag, condition Condition, qValue reflect.Value, i int) {
+
+	fmt.Println("t.Type",t.Type)
 	switch t.Type {
 	case "left":
 		//左关联

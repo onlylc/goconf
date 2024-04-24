@@ -25,10 +25,13 @@ type bindConstructor struct {
 }
 
 func (e *bindConstructor) GetBindingForGin(d interface{}) []binding.Binding {
+	// fmt.Println("----------")
 	bs := e.getBinding(reflect.TypeOf(d).String())
+	// fmt.Println("----------",bs)
 	if bs == nil {
 		bs = e.resolve(d)
 	}
+
 	gbs := make([]binding.Binding, 0)
 	mp := make(map[uint8]binding.Binding, 0)
 	for _, b := range bs {
@@ -67,7 +70,7 @@ func (e *bindConstructor) resolve(d interface{}) []uint8 {
 	for i := 0; i < qType.NumField(); i++ {
 		tag = qType.Field(i).Tag
 		if _, ok = tag.Lookup("json"); ok {
-			bs = append(bs,json)
+			bs = append(bs, json)
 		}
 		if _, ok = tag.Lookup("xml"); ok {
 			bs = append(bs, xml)

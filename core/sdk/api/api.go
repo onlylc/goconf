@@ -46,11 +46,15 @@ func (e Api) GetLogger() *logger.Helper {
 }
 
 func (e *Api) Bind(d interface{}, bindings ...binding.Binding) *Api {
+
 	var err error
 	if len(bindings) == 0 {
 		bindings = constructor.GetBindingForGin(d)
+
 	}
+
 	for i := range bindings {
+
 		if bindings[i] == nil {
 			err = e.Context.ShouldBindUri(d)
 		} else {

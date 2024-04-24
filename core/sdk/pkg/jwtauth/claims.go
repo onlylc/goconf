@@ -15,6 +15,10 @@ func (m MapClaims) Exp() (int64, error) {
 	return m.Int64("exp")
 }
 
+func (m MapClaims) OrigIat() (int64, error) {
+	return m.Int64("orig_iat")
+}
+
 // Identity returns value of identity
 func (m MapClaims) Identity() (int64, error) {
 	return m.Int64("identity")
@@ -56,5 +60,30 @@ func (m MapClaims) String(key string) string {
 	default:
 		fmt.Errorf("maptoclaims key to string invalid value '%v' type '%T' key %v", value, value, key)
 		return ""
+	}
+}
+
+func (m MapClaims) Int(key string) (int, error) {
+	value := m[key]
+	if value == nil {
+		return 0, fmt.Errorf("invalid key '%v'", key)
+	}
+	switch value.(type) {
+	case json.Number:
+		intVal, err := value.(json.Number).Int64()
+		if err != nil {
+			return 0, err 
+		}
+		return int(intVal), nil 
+	case float64:
+		return int(value.(float64)), nil 
+	case string:
+		intVal, err := strconv.ParseInt(value.(string), 10, 0)
+		if err != nil {
+			return 0, err
+		}
+		return int(intVal), nil
+	default:
+		return 0, fmt.Errorf("invalid value '%v' type '%T'", value, value)
 	}
 }

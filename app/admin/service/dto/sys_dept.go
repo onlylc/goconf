@@ -16,3 +16,10 @@ type SysDeptGetPageReq struct {
 func (m *SysDeptGetPageReq) GetNeedSearch() interface{} {
 	return *m
 }
+
+
+type DeptLabel struct {
+	Id int `gorm:"-" json:"id"`
+	Label string `gorm:"-" json:"label"`
+	Children []DeptLabel `gorm:"-" json:"children"`
+}

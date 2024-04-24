@@ -52,7 +52,6 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 	var status = "2"
 	var msg = "登录成功"
 	var username = ""
-
 	defer func() {
 		fmt.Println(status, msg, username)
 	}()
@@ -63,6 +62,7 @@ func Authenticator(c *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrMissingLoginValues
 
 	}
+	
 	sysUser, role, e := loginVals.GetUser(db)
 	if e == nil {
 		username = loginVals.Username

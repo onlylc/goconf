@@ -4,6 +4,7 @@ import (
 	"goconf/common/global"
 
 	"goconf/core/tools/search"
+
 	"gorm.io/gorm"
 )
 
@@ -40,12 +41,14 @@ type GeneralGetDto struct {
 }
 
 func MakeCondition(q interface{}) func(db *gorm.DB) *gorm.DB {
+
 	return func(db *gorm.DB) *gorm.DB {
 		condition := &search.GormCondition{
 			GormPublic: search.GormPublic{},
 			Join:       make([]*search.GormJoin, 0),
 		}
 		search.ResolveSearchQuery(global.Driver, q, condition)
+		// fmt.Println("resolveSearchQuery", global.DBName, q, condition.Join,condition.Where,condition.Or,condition.Order)
 		for _, join := range condition.Join {
 			if join == nil {
 				continue
