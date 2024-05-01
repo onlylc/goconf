@@ -5,10 +5,9 @@ import (
 	"goconf/common/models"
 	"goconf/core/sdk/api"
 	"goconf/core/sdk/pkg"
+	"goconf/core/sdk/pkg/jwtauth/user"
 	"goconf/core/sdk/pkg/response"
 	"net/http"
-
-	"goconf/core/sdk/pkg/jwtauth/user"
 
 	"github.com/gin-gonic/gin"
 )

@@ -48,12 +48,10 @@ func SetupLogger(opts ...Option) logger.Logger {
 		if err != nil {
 			log.Fatalf("new zap logger error, %s", err.Error())
 		}
-
 	//case "logrus":
 	//	setLogger = logrus.NewLogger(logger.WithLevel(level), logger.WithOutput(output), logrus.ReportCaller())
 	default:
 		log.DefaultLogger = logger.NewLogger(logger.WithLevel(level), logger.WithOutput(output))
 	}
-
 	return log.DefaultLogger
 }

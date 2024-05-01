@@ -38,8 +38,8 @@ func LoggerToFile() gin.HandlerFunc {
 
 		c.Next()
 		url := c.Request.RequestURI
-		if strings.Index(url, "logout") > -1 ||
-			strings.Index(url, "login") > -1 {
+
+		if strings.Contains(url, "logout")  || 	strings.Contains(url, "login")  {
 			return
 		}
 		// 结束时间
@@ -65,6 +65,11 @@ func LoggerToFile() gin.HandlerFunc {
 			statusBus = st.(int)
 		}
 
+		fmt.Println("GET: ", c.Keys)
+		fmt.Println("body: ", body)
+		fmt.Println("result: ", result)
+		fmt.Println("statusBus: ", statusBus)
+		
 		// 请求方式
 		reqMethod := c.Request.Method
 		// 请求路由
@@ -74,7 +79,7 @@ func LoggerToFile() gin.HandlerFunc {
 		// 请求IP
 		clientIP := common.GetClientIP(c)
 		// 执行时间
-		latencyTime := endTime.Sub(startTime).Milliseconds()
+		latencyTime := endTime.Sub(startTime)
 		// 日志格式
 		logData := map[string]interface{}{
 			"statusCode":  statusCode,
@@ -85,9 +90,10 @@ func LoggerToFile() gin.HandlerFunc {
 			// "body":        body,
 			// "statusBus":   statusBus,
 			// "result":      result,
+			// "c.GET":       c.Keys,
 		}
 		log.WithFields(logData).Info()
-		fmt.Sprintf(body, statusBus, result)
+		
 		// if c.Request.Method != "OPTIONS" && config.LoggerConfig.EnabledDB && statusCode != 404 {
 		// 	SetDBOperLog(c, clientIP, statusCode, reqUri, reqMethod, latencyTime, body, result, statusBus)
 		// }

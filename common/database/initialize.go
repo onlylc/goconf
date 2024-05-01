@@ -39,7 +39,7 @@ func setupSimpleDatabase(host string, c *config.Database) {
 	}
 	
 	resolverConfig := toolsDB.NewConfigure(c.Source, c.MaxIdleConns, c.MaxOpenConns, c.ConnMaxIdleTime, c.ConnMaxLifeTime, registers)
-	fmt.Println("aaa")
+
 	db, err := resolverConfig.Init(&gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: true,
