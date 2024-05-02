@@ -101,6 +101,7 @@ func Setup(dbs map[string]*gorm.DB) {
 
 	for k, db := range dbs {
 		sdk.Runtime.SetCrontab(k, cronjob.NewWithSeconds())
+		fmt.Println("cron",k,db)
 		setup(k, db)
 	}
 }

@@ -1,16 +1,11 @@
 package crontab
 
 import (
-	"context"
+	"goconf/app/myjobs"
 	"goconf/common/database"
 	"goconf/core/config/source/file"
-	"goconf/core/logger"
 	"goconf/core/sdk/config"
-	"os"
-	"os/signal"
-	"syscall"
-	log "goconf/core/logger"
-	"github.com/robfig/cron/v3"
+
 	"github.com/spf13/cobra"
 )
 
@@ -52,27 +47,33 @@ func setup() {
 }
 
 func run() error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // 确保在函数退出时取消上下文
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		myjobs.InitJob()
+		myjobs.Setup()
+	}()
+	select {}
+	// ctx, cancel := context.WithCancel(context.Background())
+	// defer cancel() // 确保在函数退出时取消上下文
 
-	c := cron.New(cron.WithSeconds())
+	// quit := make(chan os.Signal, 1)
+	// signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	go func(ctx context.Context) {
-		_, err := c.AddFunc("@every 1s", func() { log.Error("name:age") })
-		if err != nil {
-			return
-		}
-		_, err1 := c.AddFunc("@every 1s", func() { logger.Info("value:test") })
-		if err1 != nil {
-			return
-		}
-		c.Start()
-		<-ctx.Done()
-		c.Stop()
-	}(ctx)
-	<-quit
+	// c := cron.New(cron.WithSeconds())
+
+	// go func(ctx context.Context) {
+	// 	_, err := c.AddFunc("@every 1s", func() { log.Error("name:age") })
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// 	_, err1 := c.AddFunc("@every 1s", func() { log.Info("value:test") })
+	// 	if err1 != nil {
+	// 		return
+	// 	}
+	// 	c.Start()
+	// 	<-ctx.Done()
+	// 	c.Stop()
+	// }(ctx)
+	// <-quit
 	return nil
 }
