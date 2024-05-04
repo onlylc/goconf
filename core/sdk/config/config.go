@@ -50,6 +50,7 @@ type Config struct {
 	Databases   *map[string]*Database `yaml:"databases"`
 	Gen         *Gen                  `yaml:"gen"`
 	Cache       *Cache                `yaml:"cache"`
+	Mycron		*MyCron				  `yaml:"mycron"`
 	// Queue       *Queue                `yaml:"queue"`
 	// Locker      *Locker               `yaml:"locker"`
 	Extend interface{} `yaml:"extend"`
@@ -76,6 +77,7 @@ func Setup(s source.Source, fs ...func()) {
 			Databases:   &DatabasesConfig,
 			Gen:         GenConfig,
 			Cache:       CacheConfig,
+			Mycron: MyCronConfig,
 			// Queue:       QueueConfig,
 			// Locker:      LockerConfig,
 			Extend: ExtendConfig,

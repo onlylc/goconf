@@ -15,7 +15,7 @@ func ExtractClaims(c *gin.Context) jwt.MapClaims {
 	if !exists {
 		return make(jwt.MapClaims)
 	}
-	// log.Info("JWT_PAYLOAD",claims)
+	fmt.Println("JWT_PAYLOAD",claims)
 	return claims.(jwt.MapClaims)
 }
 

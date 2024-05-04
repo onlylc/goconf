@@ -1,11 +1,9 @@
 package config
 
 import (
-	"encoding/json"
 	"fmt"
 	"goconf/common/database"
 	"goconf/core/config/source/file"
-	log "goconf/core/logger"
 	"goconf/core/sdk/config"
 
 	"github.com/spf13/cobra"
@@ -39,11 +37,11 @@ func run() {
 	// 		"log": "test",
 	// 	})
 
-	application, errs := json.MarshalIndent(config.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
-	if errs != nil {
-		fmt.Println(errs.Error())
-	}
-	log.Error("application:", string(application))
+	// application, errs := json.MarshalIndent(config.ApplicationConfig, "", "   ") //转换成JSON返回的是byte[]
+	// if errs != nil {
+	// 	fmt.Println(errs.Error())
+	// }
+	// log.Error("application:", string(application))
 
 	// jwt, errs := json.MarshalIndent(config.JwtConfig, "", "   ") //转换成JSON返回的是byte[]
 	// if errs != nil {
@@ -74,7 +72,8 @@ func run() {
 	// 	fmt.Println(errs.Error())
 	// }
 	// fmt.Println("cache:", string(redisConfig))
-	log.Debug("DDDDDDDDDDDD")
-	select {}
+	// log.Debug("DDDDDDDDDDDD")
+	// select {}
+	fmt.Println(config.MyCronConfig)
 
 }

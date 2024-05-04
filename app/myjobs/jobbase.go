@@ -22,7 +22,7 @@ type JobCore struct {
 	InvokeTarget   string
 	Name           string
 	CronExpression string
-	Args           string
+	Args           interface{}
 }
 
 type ExecJob struct {
@@ -44,7 +44,7 @@ func (e *ExecJob) Run() {
 
 	latencyTime := endTime.Sub(startTime)
 
-	fmt.Printf("[Job] JobCore %s exec success , spend : %v\n",e.Name, latencyTime)
+	fmt.Printf("[Job] JobCore %s exec success , spend : %v\n", e.Name, latencyTime)
 	// return
 
 }
@@ -58,11 +58,9 @@ func Setup() {
 
 func setup(key string) {
 	crontab := sdk.Runtime.GetCrontabKey(key)
-	fmt.Println("crontab")
 	sysJob := models.SysJob{}
 	jobList := make([]models.SysJob, 0)
 	err := sysJob.GetList(&jobList)
-	fmt.Println(jobList)
 	if err != nil {
 		fmt.Println(time.Now().Format(timeFormat), " [ERROR] JobCore init error", err)
 	}

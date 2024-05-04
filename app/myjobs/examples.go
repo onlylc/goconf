@@ -2,29 +2,42 @@ package myjobs
 
 import (
 	"fmt"
-	"time"
+	"goconf/core/sdk/config"
 )
+
 
 func InitJob() {
 	jobList = map[string]JobExec{
 		"ExamplesOne": ExamplesOne{},
+		"mysql": Mysql{},
+
 	}
 }
 
 type ExamplesOne struct {
 }
 
-func (t ExamplesOne) Exec(arg interface{}) error {
-	str := time.Now().Format(timeFormat) + " [INFO] jobCore ExamplesOne exec succes"
-	switch arg := arg.(type) {
-	case string:
-		if arg != "" {
-			fmt.Println("string", arg)
-			fmt.Println(str, arg)
-		} else {
-			fmt.Println("arg is nil")
-			fmt.Println(str, "arg is nil")
-		}
+func (t ExamplesOne) Exec(args interface{}) error {
+	argStruct, ok := args.(config.Args)	
+	if !ok {
+		return fmt.Errorf("invalid argument type: %T", argStruct)
 	}
+	if argStruct.Index == "" {
+		fmt.Println("nil",argStruct)
+	}
+	fmt.Println(argStruct)
+	return nil
+}
+
+type Mysql struct {
+}
+
+func (t Mysql) Exec(args interface{}) error {
+	argStruct, ok := args.(config.Args)	
+	if !ok {
+		return fmt.Errorf("invalid argument type: %T", argStruct)
+	}
+
+	fmt.Println("Mysql", argStruct)
 	return nil
 }

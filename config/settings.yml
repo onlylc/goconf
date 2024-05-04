@@ -73,3 +73,30 @@ settings:
 #        reclaimInterval: 1
   locker:
     redis:
+  mycron:
+    data:
+      - name: nginx
+        cronExpression: "*/6 * * * * *"
+        invokeTarget: ExamplesOne
+        args: 
+          hot: 1
+          size: 200
+          gt: 100
+          lt: 200
+          index: nginx
+          plat: ngx
+      - name: python
+        cronExpression: "*/6 * * * * *"
+        invokeTarget: ExamplesOne
+        args: 
+          hot: 1
+          size: 200
+          gt: 100
+          lt: 200
+          index: python
+          plat: py
+      - name: go
+        cronExpression: "*/6 * * * * *"
+        invokeTarget: mysql
+        args: 
+          
