@@ -4,7 +4,7 @@ import "github.com/robfig/cron/v3"
 
 type Job interface {
 	Run()
-	addJob(*cron.Cron) (error)
+	addJob(*cron.Cron) (int, error)
 }
 
 type JobExec interface {

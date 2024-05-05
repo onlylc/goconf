@@ -25,7 +25,7 @@ func (t ExamplesOne) Exec(args interface{}) error {
 	if argStruct.Index == "" {
 		fmt.Println("nil",argStruct)
 	}
-	fmt.Println(argStruct)
+	fmt.Println("args",argStruct)
 	return nil
 }
 
